@@ -5,10 +5,13 @@ import {
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Link } from "react-router-dom";
+import AuthDialog from '../components/login';
 
 const FavoritesPage = () => {
   const [favorites, setFavorites] = useState([]);
   const theme = useTheme();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(true);
 
   useEffect(() => {
     const loadFavorites = () => {
@@ -41,7 +44,7 @@ const FavoritesPage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}> {/* Changed from xl to lg for narrower container */}
+    <Container maxWidth="lg" sx={{ py: 4 }}> 
       <Typography variant="h4" component="h1" sx={{ 
         mb: 4, 
         fontWeight: "bold", 
@@ -52,15 +55,30 @@ const FavoritesPage = () => {
         Favorites
       </Typography>
 
-      {!user ? (
-        <Box sx={{ textAlign: "center", mt: 8 }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>
-            Please log in to view your favorites
-          </Typography>
-          <Button variant="contained" component={Link} to="/login" sx={{ mt: 2 }}>
-            Login
-          </Button>
-        </Box>
+       {!user ? (
+    <Box sx={{ textAlign: "center", mt: 8 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Please log in to view your favorites
+      </Typography>
+      <Button 
+        variant="contained" 
+        onClick={() => setAuthOpen(true)}
+        sx={{ mt: 2 }}
+      >
+        Login
+      </Button>
+      
+      <AuthDialog 
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        isSignIn={isSignIn}
+        toggleAuthMode={() => setIsSignIn(!isSignIn)}
+        onLogin={(userData) => {
+          
+          setAuthOpen(false);
+        }}
+      />
+    </Box>
       ) : favorites.length === 0 ? (
         <Box sx={{ textAlign: "center", mt: 8 }}>
           <Typography variant="h5" sx={{ mb: 2 }}>
@@ -71,7 +89,7 @@ const FavoritesPage = () => {
           </Button>
         </Box>
       ) : (
-        <Grid container spacing={3}> {/* Reduced spacing from 4 to 3 */}
+        <Grid container spacing={3}> 
           {favorites.map((movie) => (
             <Grid item key={movie.id} xs={12} sm={6} md={4}>
               <Card sx={{ 
@@ -156,7 +174,7 @@ const FavoritesPage = () => {
                 </CardContent>
                 <CardActions sx={{ 
                   justifyContent: "space-between", 
-                  p: "0 12px 12px 12px", // Reduced padding
+                  p: "0 12px 12px 12px", 
                   mt: "auto"
                 }}>
                   <Button 
@@ -167,10 +185,10 @@ const FavoritesPage = () => {
                       backgroundColor: theme.palette.primary.main,
                       color: "#fff",
                       borderRadius: "4px",
-                      px: 2, // Reduced padding
-                      py: 0.5, // Reduced padding
+                      px: 2, 
+                      py: 0.5, 
                       textTransform: "uppercase",
-                      fontSize: "0.8rem", // Smaller font size
+                      fontSize: "0.8rem", 
                       '&:hover': {
                         backgroundColor: theme.palette.primary.dark
                       }
@@ -187,7 +205,7 @@ const FavoritesPage = () => {
                       }
                     }}
                   >
-                    <FavoriteIcon fontSize="small" /> {/* Smaller icon */}
+                    <FavoriteIcon fontSize="small" /> 
                   </IconButton>
                 </CardActions>
               </Card>
