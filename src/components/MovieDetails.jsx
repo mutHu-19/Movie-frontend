@@ -38,7 +38,7 @@ const MovieDetails = () => {
     const fetchMovie = async () => {
       try {
         const response = await axios.get(
-          `https://movie-backend-six.vercel.app/api/tmdb/movie/${id}`
+          `https://movie-backend-sand.vercel.app/api/tmdb/movie/${id}`
         );
         console.log(response.data);
         setMovie(response.data);

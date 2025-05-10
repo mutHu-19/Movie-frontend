@@ -20,7 +20,7 @@ const MoviesPage = ({ query, genre, year, rating }) => {
         if (year) params.append('year', year);
         if (rating) params.append('rating', rating);
         
-        const url = `https://movie-backend-six.vercel.app/api/tmdb/search?${params.toString()}`;
+        const url = `https://movie-backend-sand.vercel.app/api/tmdb/search?${params.toString()}`;
         
         const response = await fetch(url);
         const data = await response.json();

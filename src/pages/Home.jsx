@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const response = await axios.get("https://movie-backend-six.vercel.app/api/tmdb/trending");
+        const response = await axios.get("https://movie-backend-sand.vercel.app/api/tmdb/trending");
         setTrending(response.data);
       } catch (error) {
         console.error("Error fetching trending movies:", error);
