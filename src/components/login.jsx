@@ -41,7 +41,7 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
     setLoading(true);
 
     try {
-      const endpoint = isSignIn ? 'http://localhost:5000/api/users/login' : 'http://localhost:5000/api/users/register';
+      const endpoint = isSignIn ? 'https://movie-backend-six.vercel.app/api/users/login' : 'https://movie-backend-six.vercel.app/api/users/register';
       const payload = isSignIn 
         ? { email: formData.email, password: formData.password }
         : { username: formData.username, email: formData.email, password: formData.password };
