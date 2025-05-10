@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate instead of useHistory
+import { useNavigate } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import Header from './components/Header';
+import { Box } from '@mui/material'; 
 
 const App = () => {
   const [mode, setMode] = useState('light');
@@ -22,7 +23,7 @@ const App = () => {
     [mode]
   );
 
-  const navigate = useNavigate(); // Use useNavigate
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -30,14 +31,26 @@ const App = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    navigate('/search'); // Trigger route change
+    navigate('/search');
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header toggleTheme={toggleTheme} mode={mode} user={user} setUser={setUser} onSearch={handleSearch} />
-      <AppRoutes user={user} searchQuery={searchQuery} />
+    
+      <Box
+        component="main"
+        sx={{
+          pt: { xs: '56px', sm: '64px' },  
+          minHeight: 'calc(100vh - 56px)', 
+          [theme.breakpoints.up('sm')]: {
+            minHeight: 'calc(100vh - 64px)',  
+          },
+        }}
+      >
+        <AppRoutes user={user} searchQuery={searchQuery} />
+      </Box>
     </ThemeProvider>
   );
 };

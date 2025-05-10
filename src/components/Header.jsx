@@ -27,7 +27,7 @@ const navLinks = [
   { label: 'Favorites', path: '/favorites' },
 ];
 
-const Header = ({ toggleTheme, mode = 'dark', onSearch }) => { // Set default mode to 'dark'
+const Header = ({ toggleTheme, mode = 'dark', onSearch }) => { 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
