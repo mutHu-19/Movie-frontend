@@ -63,72 +63,80 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+  e.preventDefault();
+  if (!validateForm()) return;
+  
+  setLoading(true);
+  setError(null);
+  setSuccess(null);
+
+  try {
+    // Determine the correct endpoint based on environment
+    const baseUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000' 
+      : 'https://movie-backend-sand.vercel.app';
     
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
+    const endpoint = isSignIn 
+      ? `${baseUrl}/api/users/login`
+      : `${baseUrl}/api/users/register`;
 
-    try {
-      const baseUrl = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000' 
-  : 'https://movie-backend-sand.vercel.app';
+    const payload = isSignIn 
+      ? { email: formData.email, password: formData.password }
+      : { 
+          username: formData.username, 
+          email: formData.email, 
+          password: formData.password 
+        };
 
-const endpoint = isSignIn 
-  ? `${baseUrl}/api/users/login`
-  : `${baseUrl}/api/users/register`;
-      
-      const payload = isSignIn 
-        ? { email: formData.email, password: formData.password }
-        : { 
-            username: formData.username, 
-            email: formData.email, 
-            password: formData.password 
-          };
+    // Enhanced request configuration
+    const { data } = await axios.post(endpoint, payload, {
+      timeout: 20000, // Increased timeout to 20 seconds
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      validateStatus: (status) => status < 500 // Don't throw for 4xx errors
+    });
 
-      const { data } = await axios.post(endpoint, payload, {
-        timeout: 15000,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!data?.token) throw new Error('Authentication failed');
-      
-      const userData = { 
-        id: data._id,
-        username: data.username, 
-        email: data.email,
-        token: data.token 
-      };
-      
-      localStorage.setItem('user', JSON.stringify(userData));
-      setSuccess(isSignIn 
-        ? `Welcome back, ${data.username}!` 
-        : `Account created for ${data.username}!`);
-
-      onLogin(userData);
-      
-      setTimeout(() => {
-        setFormData({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
-        onClose();
-      }, 1500);
-
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || 
-                      err.message || 
-                      'Authentication failed';
-      setError(errorMsg);
-    } finally {
-      setLoading(false);
+    if (!data?.token) {
+      throw new Error(data?.message || 'Authentication failed');
     }
-  };
+    
+    const userData = { 
+      id: data._id,
+      username: data.username, 
+      email: data.email,
+      token: data.token 
+    };
+    
+    // Store user data
+    localStorage.setItem('user', JSON.stringify(userData));
+    setSuccess(isSignIn 
+      ? `Welcome back, ${data.username}!` 
+      : `Account created successfully!`);
+
+    // Notify parent component and close dialog
+    onLogin(userData);
+    setTimeout(onClose, 1500);
+
+  } catch (err) {
+    let errorMsg = 'Authentication failed';
+    
+    if (err.code === 'ECONNABORTED') {
+      errorMsg = 'Request timed out - please try again';
+    } else if (err.response) {
+      // Server responded with error status
+      errorMsg = err.response.data?.message || err.message;
+    } else if (err.request) {
+      // Request was made but no response
+      errorMsg = 'Network error - please check your connection';
+    }
+    
+    setError(errorMsg);
+    console.error('Auth error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <Dialog 
       open={open} 
