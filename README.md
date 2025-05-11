@@ -13,6 +13,15 @@ You can use the following credentials to log in to the app for testing purposes:
 - **Email:** nisal@gmail.com  
 - **Password:** 1234567
 
+- **Username:** hiru  
+- **Email:** hiru@gmail.com  
+- **Password:** 123456
+
+- **Username:** chamodi  
+- **Email:** chamodi@gmail.com  
+- **Password:** 123456
+
+
 
 ## 🚀 Features
 
