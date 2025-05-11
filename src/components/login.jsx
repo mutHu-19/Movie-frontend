@@ -11,7 +11,8 @@ import {
   Box,
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 
 const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
@@ -25,43 +26,84 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
   const [error, setError] = React.useState(null);
   const [success, setSuccess] = React.useState(null);
 
-  // Add the missing handleChange function
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+   const handleCloseAlert = () => {
+    setError(null);
+    setSuccess(null);
+  };
+
+  const validateForm = () => {
+    const { email, password, confirmPassword, username } = formData;
+    
+    if (!isSignIn) {
+      if (password !== confirmPassword) {
+        setError("Passwords don't match");
+        return false;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters");
+        return false;
+      }
+      if (!username.trim()) {
+        setError("Username is required");
+        return false;
+      }
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email");
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+    
+    setLoading(true);
     setError(null);
     setSuccess(null);
-    setLoading(true);
 
     try {
-      const endpoint = isSignIn ? 'https://movie-backend-sand.vercel.app/api/users/login' : 'https://movie-backend-sand.vercel.app/api/users/register';
+      const endpoint = isSignIn 
+        ? 'https://movie-frontend-blue.vercel.app/api/users/login' || 'http://localhost:5000/api/users/login'
+        : 'https://movie-frontend-blue.vercel.app/api/users/register' || 'http://localhost:5000/api/users/register';
+      
       const payload = isSignIn 
         ? { email: formData.email, password: formData.password }
-        : { username: formData.username, email: formData.email, password: formData.password };
+        : { 
+            username: formData.username, 
+            email: formData.email, 
+            password: formData.password 
+          };
 
-      const response = await axios.post(endpoint, payload);
+      const { data } = await axios.post(endpoint, payload, {
+        timeout: 15000,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!data?.token) throw new Error('Authentication failed');
       
-      // Store complete user data in localStorage
       const userData = { 
-        id: response.data.id,
-        username: response.data.username, 
-        email: response.data.email,
-        token: response.data.token 
+        id: data._id,
+        username: data.username, 
+        email: data.email,
+        token: data.token 
       };
       
       localStorage.setItem('user', JSON.stringify(userData));
       setSuccess(isSignIn 
-        ? `Welcome back, ${response.data.username}!` 
-        : `Account created for ${response.data.username}!`);
+        ? `Welcome back, ${data.username}!` 
+        : `Account created for ${data.username}!`);
 
-      // Pass the complete user data to parent component
       onLogin(userData);
       
       setTimeout(() => {
@@ -75,17 +117,14 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
       }, 1500);
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Authentication failed');
+      const errorMsg = err.response?.data?.message || 
+                      err.message || 
+                      'Authentication failed';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleCloseAlert = () => {
-    setError(null);
-    setSuccess(null);
-  };
-
   return (
     <Dialog 
       open={open} 
@@ -223,7 +262,12 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
                 }
               }}
             >
-              {loading ? 'PROCESSING...' : isSignIn ? 'SIGN IN' : 'SIGN UP'}
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CircularProgress size={24} sx={{ color: 'white', mr: 2 }} />
+                  Processing...
+                </Box>
+              ) : isSignIn ? 'SIGN IN' : 'SIGN UP'}
             </Button>
           </DialogActions>
         </Box>
