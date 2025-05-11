@@ -5,6 +5,15 @@ The Movie Explorer Frontend is a React-based web application designed to provide
 
 ---
 
+## Demo Credentials
+
+You can use the following credentials to log in to the app for testing purposes:
+
+- **Username:** nisal  
+- **Email:** nisal@gmail.com  
+- **Password:** 1234567
+
+
 ## 🚀 Features
 
 * **User Authentication**: Secure login and registration system.
