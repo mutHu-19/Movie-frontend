@@ -71,9 +71,13 @@ const AuthDialog = ({ open, onClose, isSignIn, toggleAuthMode, onLogin }) => {
     setSuccess(null);
 
     try {
-      const endpoint = isSignIn 
-        ? 'https://movie-frontend-blue.vercel.app/api/users/login' || 'http://localhost:5000/api/users/login'
-        : 'https://movie-frontend-blue.vercel.app/api/users/register' || 'http://localhost:5000/api/users/register';
+      const baseUrl = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : 'https://movie-backend-sand.vercel.app';
+
+const endpoint = isSignIn 
+  ? `${baseUrl}/api/users/login`
+  : `${baseUrl}/api/users/register`;
       
       const payload = isSignIn 
         ? { email: formData.email, password: formData.password }
